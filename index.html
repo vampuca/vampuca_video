@@ -16,9 +16,15 @@
 		
 		/* Адаптивное видео для мобильных */
 		@media (max-width: 768px) {
-			.reveal .slide-background-content {
+			.reveal .slide-background-content,
+			.reveal .slide-background-content video {
 				object-fit: contain !important;
-				background-color: black;
+				width: 100% !important;
+				height: 100% !important;
+			}
+			
+			.reveal .slide-background {
+				background-color: black !important;
 			}
 			
 			.reveal .slides {
@@ -29,6 +35,12 @@
 			.reveal .slides section {
 				width: 100% !important;
 				height: 100% !important;
+			}
+			
+			/* Принудительно применяем contain к видео */
+			.reveal .backgrounds .slide-background video {
+				object-fit: contain !important;
+				object-position: center !important;
 			}
 		}
 		.reveal .controls .navigate-left,
@@ -165,6 +177,19 @@
 			}
 		}
 
+		// Функция для применения мобильных стилей к видео
+		function applyMobileVideoStyles() {
+			if (isMobile()) {
+				const videos = document.querySelectorAll('.reveal .slide-background video');
+				videos.forEach(video => {
+					video.style.objectFit = 'contain';
+					video.style.objectPosition = 'center';
+					video.style.width = '100%';
+					video.style.height = '100%';
+				});
+			}
+		}
+
 		Reveal.initialize({
 			history: false, 
 			transition: 'fade',
@@ -211,6 +236,9 @@
 			if (!isFirstSlide && isMobile()) {
 				document.body.classList.remove('mobile-highlight');
 			}
+			
+			// Применяем мобильные стили к видео
+			applyMobileVideoStyles();
 		}
 
 		// Обработчик для разблокировки звука при переходе со первого слайда
@@ -227,7 +255,10 @@
 			updateCurrentVideo();
 		});
 
-		Reveal.on('ready', updateCurrentVideo);
+		Reveal.on('ready', function() {
+			updateCurrentVideo();
+			applyMobileVideoStyles();
+		});
 
 		playerControls.addEventListener('click', togglePause);
 
