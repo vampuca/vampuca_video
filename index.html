@@ -65,9 +65,22 @@
 				height: 28px !important;
 			}
 		}
+
+		/* Подсветка стрелки на первом слайде для мобильных */
+		.mobile-highlight .reveal .controls .navigate-right {
+			animation: pulse 2s infinite;
+			opacity: 1 !important;
+		}
+		
+		@keyframes pulse {
+			0% { transform: scale(1); }
+			50% { transform: scale(1.2); }
+			100% { transform: scale(1); }
+		}
 	</style>
 </head>
 <body>
+
 	<div id="player-controls">
 		<svg id="icon-pause" width="32" height="32" viewBox="0 0 100 100">
 			<path d="M30 20 L30 80 M70 20 L70 80" stroke="white" stroke-width="12" fill="none" stroke-linecap="round"/>
@@ -87,9 +100,20 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
 	<script>
 		let currentVideo = null;
+		let isUnlocked = false;
 		const playerControls = document.getElementById('player-controls');
 		const iconPause = document.getElementById('icon-pause');
 		const iconPlay = document.getElementById('icon-play');
+
+		// Определяем мобильное устройство
+		function isMobile() {
+			return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+		}
+
+		// Подсвечиваем стрелку для мобильных устройств
+		if (isMobile()) {
+			document.body.classList.add('mobile-highlight');
+		}
 
 		function showPauseIcon() {
 			iconPause.style.display = 'block';
@@ -111,11 +135,23 @@
 			}
 		}
 
+		// Функция для принудительного запуска видео
+		function forcePlayVideo(video) {
+			if (video && isUnlocked) {
+				video.muted = false;
+				video.play().catch(err => {
+					console.log('Autoplay failed, trying muted:', err);
+					video.muted = true;
+					video.play();
+				});
+			}
+		}
+
 		Reveal.initialize({
 			history: false, 
 			transition: 'fade',
 			controls: true,
-			touch: true, // Включаем управление касанием для мобильных
+			touch: true,
 			keyboard: {
 				32: togglePause
 			}
@@ -140,16 +176,40 @@
 			if (currentVideo) {
 				currentVideo.addEventListener('play', showPauseIcon);
 				currentVideo.addEventListener('pause', showPlayIcon);
+				
+				// Принудительно запускаем видео для мобильных
+				if (isMobile() && isUnlocked) {
+					setTimeout(() => forcePlayVideo(currentVideo), 100);
+				}
+				
 				if (currentVideo.paused) {
 					showPlayIcon();
 				} else {
 					showPauseIcon();
 				}
 			}
+			
+			// Убираем подсветку стрелки после первого слайда
+			if (!isFirstSlide && isMobile()) {
+				document.body.classList.remove('mobile-highlight');
+			}
 		}
 
+		// Обработчик для разблокировки звука при переходе со первого слайда
+		Reveal.on('slidechanged', function(event) {
+			if (isMobile() && !isUnlocked && event.previousSlide && event.indexh === 1) {
+				isUnlocked = true;
+				document.body.classList.remove('mobile-highlight');
+				
+				// Запускаем текущее видео
+				if (currentVideo) {
+					forcePlayVideo(currentVideo);
+				}
+			}
+			updateCurrentVideo();
+		});
+
 		Reveal.on('ready', updateCurrentVideo);
-		Reveal.on('slidechanged', updateCurrentVideo);
 
 		playerControls.addEventListener('click', togglePause);
 	</script>
