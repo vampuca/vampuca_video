@@ -13,6 +13,24 @@
 			height: 100%;
 			object-fit: cover;
 		}
+		
+		/* Адаптивное видео для мобильных */
+		@media (max-width: 768px) {
+			.reveal .slide-background-content {
+				object-fit: contain !important;
+				background-color: black;
+			}
+			
+			.reveal .slides {
+				width: 100% !important;
+				height: 100% !important;
+			}
+			
+			.reveal .slides section {
+				width: 100% !important;
+				height: 100% !important;
+			}
+		}
 		.reveal .controls .navigate-left,
 		.reveal .controls .navigate-right {
 			color: white;
@@ -212,6 +230,42 @@
 		Reveal.on('ready', updateCurrentVideo);
 
 		playerControls.addEventListener('click', togglePause);
+
+		// Дополнительная обработка свайпов для мобильных
+		if (isMobile()) {
+			let startX = 0;
+			let startY = 0;
+			let threshold = 50;
+
+			document.addEventListener('touchstart', function(e) {
+				startX = e.touches[0].clientX;
+				startY = e.touches[0].clientY;
+			});
+
+			document.addEventListener('touchend', function(e) {
+				if (!startX || !startY) return;
+
+				let endX = e.changedTouches[0].clientX;
+				let endY = e.changedTouches[0].clientY;
+
+				let diffX = startX - endX;
+				let diffY = startY - endY;
+
+				// Проверяем, что это горизонтальный свайп
+				if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > threshold) {
+					if (diffX > 0) {
+						// Свайп влево - следующий слайд
+						Reveal.next();
+					} else {
+						// Свайп вправо - предыдущий слайд
+						Reveal.prev();
+					}
+				}
+
+				startX = 0;
+				startY = 0;
+			});
+		}
 	</script>
 </body>
 </html>
