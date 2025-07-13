@@ -46,6 +46,24 @@
 		#icon-play {
 			display: none; /* Изначально иконка Play скрыта */
 		}
+		
+		/* Стили для мобильных устройств */
+		@media (max-width: 768px) {
+			.reveal .controls .navigate-left,
+			.reveal .controls .navigate-right {
+				bottom: 10px;
+			}
+			.reveal .controls .navigate-left { left: 10px; }
+			.reveal .controls .navigate-right { right: 10px; }
+			
+			#player-controls {
+				bottom: 15px;
+			}
+			#player-controls svg {
+				width: 28px;
+				height: 28px;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -96,6 +114,7 @@
 			history: false, 
 			transition: 'fade',
 			controls: true,
+			touch: true, // Включаем управление касанием
 			keyboard: {
 				32: togglePause // 32 - код клавиши 'Пробел'
 			}
@@ -110,7 +129,6 @@
 			const currentSlide = Reveal.getCurrentSlide();
 			const background = Reveal.getSlideBackground(currentSlide);
 			
-			// Удаляем слушатели со старого видео
 			if (currentVideo) {
 				currentVideo.removeEventListener('play', showPauseIcon);
 				currentVideo.removeEventListener('pause', showPlayIcon);
@@ -118,11 +136,9 @@
 
 			currentVideo = background ? background.querySelector('video') : null;
 			
-			// Добавляем слушатели на новое видео
 			if (currentVideo) {
 				currentVideo.addEventListener('play', showPauseIcon);
 				currentVideo.addEventListener('pause', showPlayIcon);
-				// Устанавливаем иконку в зависимости от текущего состояния видео
 				if (currentVideo.paused) {
 					showPlayIcon();
 				} else {
