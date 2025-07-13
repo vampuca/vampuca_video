@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>Моя видео-презентация</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reset.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme">
+	<style>
+		.reveal .slide-background-content {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.reveal .controls .navigate-left,
+		.reveal .controls .navigate-right {
+			color: white;
+			opacity: 0.7;
+		}
+		.reveal .controls .navigate-left {
+			position: fixed;
+			left: 20px;
+			bottom: 20px;
+			right: auto;
+		}
+		.reveal .controls .navigate-right {
+			position: fixed;
+			right: 20px;
+			bottom: 20px;
+			left: auto;
+		}
+		#player-controls {
+			position: fixed;
+			left: 50%;
+			bottom: 20px;
+			transform: translateX(-50%);
+			z-index: 100;
+			cursor: pointer;
+			opacity: 0.7;
+			display: none; /* Изначально все управление скрыто */
+		}
+		#player-controls:hover {
+			opacity: 1;
+		}
+		#icon-play {
+			display: none; /* Изначально иконка Play скрыта */
+		}
+	</style>
+</head>
+<body>
+	<div id="player-controls">
+		<svg id="icon-pause" width="32" height="32" viewBox="0 0 100 100">
+			<path d="M30 20 L30 80 M70 20 L70 80" stroke="white" stroke-width="12" fill="none" stroke-linecap="round"/>
+		</svg>
+		<svg id="icon-play" width="32" height="32" viewBox="0 0 100 100">
+			<path d="M35 20 L35 80 L75 50 Z" stroke="white" stroke-width="12" fill="white" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+	</div>
+	<div class="reveal">
+		<div class="slides">
+			<section data-background-video="KLKT_title.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_1.mp4" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_2.mp4" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_3.mp4" data-background-video-loop="true" data-autoplay></section>
+		</div>
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+	<script>
+		let currentVideo = null;
+		const playerControls = document.getElementById('player-controls');
+		const iconPause = document.getElementById('icon-pause');
+		const iconPlay = document.getElementById('icon-play');
+
+		function showPauseIcon() {
+			iconPause.style.display = 'block';
+			iconPlay.style.display = 'none';
+		}
+
+		function showPlayIcon() {
+			iconPause.style.display = 'none';
+			iconPlay.style.display = 'block';
+		}
+
+		function togglePause() {
+			if (currentVideo) {
+				if (currentVideo.paused) {
+					currentVideo.play();
+				} else {
+					currentVideo.pause();
+				}
+			}
+		}
+
+		Reveal.initialize({
+			history: false, 
+			transition: 'fade',
+			controls: true,
+			keyboard: {
+				32: togglePause // 32 - код клавиши 'Пробел'
+			}
+		});
+
+		function updateCurrentVideo() {
+			const indices = Reveal.getIndices();
+			const isFirstSlide = (indices.h === 0 && indices.v === 0);
+			
+			playerControls.style.display = isFirstSlide ? 'none' : 'block';
+
+			const currentSlide = Reveal.getCurrentSlide();
+			const background = Reveal.getSlideBackground(currentSlide);
+			
+			// Удаляем слушатели со старого видео
+			if (currentVideo) {
+				currentVideo.removeEventListener('play', showPauseIcon);
+				currentVideo.removeEventListener('pause', showPlayIcon);
+			}
+
+			currentVideo = background ? background.querySelector('video') : null;
+			
+			// Добавляем слушатели на новое видео
+			if (currentVideo) {
+				currentVideo.addEventListener('play', showPauseIcon);
+				currentVideo.addEventListener('pause', showPlayIcon);
+				// Устанавливаем иконку в зависимости от текущего состояния видео
+				if (currentVideo.paused) {
+					showPlayIcon();
+				} else {
+					showPauseIcon();
+				}
+			}
+		}
+
+		Reveal.on('ready', updateCurrentVideo);
+		Reveal.on('slidechanged', updateCurrentVideo);
+
+		playerControls.addEventListener('click', togglePause);
+	</script>
+</body>
+</html>
