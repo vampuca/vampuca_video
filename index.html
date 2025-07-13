@@ -38,30 +38,31 @@
 			z-index: 100;
 			cursor: pointer;
 			opacity: 0.7;
-			display: none; /* Изначально все управление скрыто */
+			display: none;
 		}
 		#player-controls:hover {
 			opacity: 1;
 		}
 		#icon-play {
-			display: none; /* Изначально иконка Play скрыта */
+			display: none;
 		}
-		
-		/* Стили для мобильных устройств */
+
+		/* Новые, более надежные стили для мобильных устройств */
 		@media (max-width: 768px) {
-			.reveal .controls .navigate-left,
-			.reveal .controls .navigate-right {
-				bottom: 10px;
+			.reveal .controls .navigate-left {
+				left: 10px !important;
+				bottom: 10px !important;
 			}
-			.reveal .controls .navigate-left { left: 10px; }
-			.reveal .controls .navigate-right { right: 10px; }
-			
+			.reveal .controls .navigate-right {
+				right: 10px !important;
+				bottom: 10px !important;
+			}
 			#player-controls {
-				bottom: 15px;
+				bottom: 15px !important;
 			}
 			#player-controls svg {
-				width: 28px;
-				height: 28px;
+				width: 28px !important;
+				height: 28px !important;
 			}
 		}
 	</style>
@@ -114,9 +115,9 @@
 			history: false, 
 			transition: 'fade',
 			controls: true,
-			touch: true, // Включаем управление касанием
+			touch: true, // Включаем управление касанием для мобильных
 			keyboard: {
-				32: togglePause // 32 - код клавиши 'Пробел'
+				32: togglePause
 			}
 		});
 
