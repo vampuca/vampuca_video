@@ -102,76 +102,6 @@
 			height: 24px;
 		}
 
-		/* Псевдо-полноэкранный режим для мобильных */
-		.pseudo-fullscreen {
-			position: fixed !important;
-			top: 0 !important;
-			left: 0 !important;
-			width: 100vw !important;
-			height: 100vh !important;
-			background: black !important;
-			z-index: 9999 !important;
-		}
-
-		.pseudo-fullscreen .reveal {
-			width: 100% !important;
-			height: 100% !important;
-		}
-
-		.pseudo-fullscreen .reveal .slides {
-			width: 100% !important;
-			height: 100% !important;
-		}
-
-		.pseudo-fullscreen .reveal .slides section {
-			width: 100% !important;
-			height: 100% !important;
-		}
-
-		.pseudo-fullscreen .reveal .slide-background-content,
-		.pseudo-fullscreen .reveal .slide-background-content video {
-			width: 100% !important;
-			height: 100% !important;
-			object-fit: contain !important;
-		}
-
-		/* Скрываем элементы интерфейса в псевдо-полноэкранном режиме */
-		.pseudo-fullscreen .reveal .controls {
-			display: none !important;
-		}
-
-		.pseudo-fullscreen #player-controls {
-			display: none !important;
-		}
-
-		/* Кнопка выхода из псевдо-полноэкранного режима */
-		#exit-pseudo-fullscreen {
-			position: fixed;
-			top: 20px;
-			right: 20px;
-			z-index: 10000;
-			cursor: pointer;
-			opacity: 0.7;
-			background: rgba(0, 0, 0, 0.7);
-			border-radius: 50%;
-			padding: 8px;
-			touch-action: manipulation;
-			display: none;
-		}
-
-		#exit-pseudo-fullscreen:hover {
-			opacity: 1;
-		}
-
-		#exit-pseudo-fullscreen:active {
-			transform: scale(0.95);
-		}
-
-		#exit-pseudo-fullscreen svg {
-			width: 24px;
-			height: 24px;
-		}
-
 		/* Новые, более надежные стили для мобильных устройств */
 		@media (max-width: 768px) {
 			.reveal .controls .navigate-left {
@@ -215,11 +145,6 @@
 </head>
 <body>
 
-	<div id="exit-pseudo-fullscreen">
-		<svg width="24" height="24" viewBox="0 0 100 100">
-			<path d="M25 25 L75 75 M75 25 L25 75" stroke="white" stroke-width="8" fill="none" stroke-linecap="round"/>
-		</svg>
-	</div>
 	<div id="fullscreen-btn">
 		<svg id="icon-fullscreen" width="24" height="24" viewBox="0 0 100 100">
 			<path d="M25 25 L25 40 M25 25 L40 25 M75 25 L75 40 M75 25 L60 25 M25 75 L25 60 M25 75 L40 75 M75 75 L75 60 M75 75 L60 75" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
@@ -265,14 +190,12 @@
 	<script>
 		let currentVideo = null;
 		let isUnlocked = false;
-		let isPseudoFullscreen = false;
 		const playerControls = document.getElementById('player-controls');
 		const iconPause = document.getElementById('icon-pause');
 		const iconPlay = document.getElementById('icon-play');
 		const fullscreenBtn = document.getElementById('fullscreen-btn');
 		const iconFullscreen = document.getElementById('icon-fullscreen');
 		const iconExitFullscreen = document.getElementById('icon-exit-fullscreen');
-		const exitPseudoFullscreenBtn = document.getElementById('exit-pseudo-fullscreen');
 
 		// Определяем мобильное устройство
 		function isMobile() {
@@ -285,88 +208,51 @@
 		}
 
 		// Функции для полноэкранного режима
-		function enterPseudoFullscreen() {
-			isPseudoFullscreen = true;
-			document.body.classList.add('pseudo-fullscreen');
-			fullscreenBtn.style.display = 'none';
-			exitPseudoFullscreenBtn.style.display = 'block';
-			
-			// Скрываем адресную строку на мобильных
-			if (isMobile()) {
-				setTimeout(() => {
-					window.scrollTo(0, 1);
-				}, 100);
-			}
-		}
-
-		function exitPseudoFullscreen() {
-			isPseudoFullscreen = false;
-			document.body.classList.remove('pseudo-fullscreen');
-			fullscreenBtn.style.display = 'block';
-			exitPseudoFullscreenBtn.style.display = 'none';
-		}
-
 		function toggleFullscreen() {
-			if (isMobile()) {
-				// На мобильных используем псевдо-полноэкранный режим
-				if (isPseudoFullscreen) {
-					exitPseudoFullscreen();
+			const element = document.documentElement;
+			
+			if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+				// Пытаемся войти в полноэкранный режим с разными префиксами
+				if (element.requestFullscreen) {
+					element.requestFullscreen();
+				} else if (element.webkitRequestFullscreen) {
+					element.webkitRequestFullscreen();
+				} else if (element.webkitRequestFullScreen) {
+					element.webkitRequestFullScreen();
+				} else if (element.mozRequestFullScreen) {
+					element.mozRequestFullScreen();
+				} else if (element.msRequestFullscreen) {
+					element.msRequestFullscreen();
 				} else {
-					enterPseudoFullscreen();
+					// Fallback для устройств, которые не поддерживают полноэкранный режим
+					console.log('Fullscreen not supported');
+					// Можно добавить альтернативное поведение
 				}
 			} else {
-				// На десктопе используем стандартный полноэкранный режим
-				const element = document.documentElement;
-				
-				if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-					if (element.requestFullscreen) {
-						element.requestFullscreen();
-					} else if (element.webkitRequestFullscreen) {
-						element.webkitRequestFullscreen();
-					} else if (element.webkitRequestFullScreen) {
-						element.webkitRequestFullScreen();
-					} else if (element.mozRequestFullScreen) {
-						element.mozRequestFullScreen();
-					} else if (element.msRequestFullscreen) {
-						element.msRequestFullscreen();
-					}
-				} else {
-					if (document.exitFullscreen) {
-						document.exitFullscreen();
-					} else if (document.webkitExitFullscreen) {
-						document.webkitExitFullscreen();
-					} else if (document.webkitCancelFullScreen) {
-						document.webkitCancelFullScreen();
-					} else if (document.mozCancelFullScreen) {
-						document.mozCancelFullScreen();
-					} else if (document.msExitFullscreen) {
-						document.msExitFullscreen();
-					}
+				// Выходим из полноэкранного режима
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+				} else if (document.webkitExitFullscreen) {
+					document.webkitExitFullscreen();
+				} else if (document.webkitCancelFullScreen) {
+					document.webkitCancelFullScreen();
+				} else if (document.mozCancelFullScreen) {
+					document.mozCancelFullScreen();
+				} else if (document.msExitFullscreen) {
+					document.msExitFullscreen();
 				}
 			}
 		}
 
 		function updateFullscreenIcon() {
-			if (isMobile()) {
-				// На мобильных управляем иконками псевдо-полноэкранного режима
-				if (isPseudoFullscreen) {
-					iconFullscreen.style.display = 'none';
-					iconExitFullscreen.style.display = 'block';
-				} else {
-					iconFullscreen.style.display = 'block';
-					iconExitFullscreen.style.display = 'none';
-				}
+			const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+			
+			if (isFullscreen) {
+				iconFullscreen.style.display = 'none';
+				iconExitFullscreen.style.display = 'block';
 			} else {
-				// На десктопе используем стандартную проверку
-				const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-				
-				if (isFullscreen) {
-					iconFullscreen.style.display = 'none';
-					iconExitFullscreen.style.display = 'block';
-				} else {
-					iconFullscreen.style.display = 'block';
-					iconExitFullscreen.style.display = 'none';
-				}
+				iconFullscreen.style.display = 'block';
+				iconExitFullscreen.style.display = 'none';
 			}
 		}
 
@@ -382,12 +268,6 @@
 			toggleFullscreen();
 		});
 		
-		exitPseudoFullscreenBtn.addEventListener('click', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			exitPseudoFullscreen();
-		});
-		
 		// Добавляем тач-события для мобильных устройств
 		fullscreenBtn.addEventListener('touchstart', function(e) {
 			e.preventDefault();
@@ -398,17 +278,6 @@
 			e.preventDefault();
 			e.stopPropagation();
 			toggleFullscreen();
-		});
-
-		exitPseudoFullscreenBtn.addEventListener('touchstart', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-		});
-		
-		exitPseudoFullscreenBtn.addEventListener('touchend', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			exitPseudoFullscreen();
 		});
 
 		function showPauseIcon() {
