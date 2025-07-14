@@ -77,6 +77,24 @@
 			display: none;
 		}
 
+		/* Кнопка полноэкранного режима */
+		#fullscreen-btn {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			z-index: 100;
+			cursor: pointer;
+			opacity: 0.7;
+			display: none;
+		}
+		#fullscreen-btn:hover {
+			opacity: 1;
+		}
+		#fullscreen-btn svg {
+			width: 24px;
+			height: 24px;
+		}
+
 		/* Новые, более надежные стили для мобильных устройств */
 		@media (max-width: 768px) {
 			.reveal .controls .navigate-left {
@@ -91,6 +109,15 @@
 				bottom: 15px !important;
 			}
 			#player-controls svg {
+				width: 28px !important;
+				height: 28px !important;
+			}
+			#fullscreen-btn {
+				top: 15px !important;
+				right: 15px !important;
+				display: block !important;
+			}
+			#fullscreen-btn svg {
 				width: 28px !important;
 				height: 28px !important;
 			}
@@ -111,6 +138,14 @@
 </head>
 <body>
 
+	<div id="fullscreen-btn">
+		<svg id="icon-fullscreen" width="24" height="24" viewBox="0 0 100 100">
+			<path d="M25 25 L25 40 M25 25 L40 25 M75 25 L75 40 M75 25 L60 25 M25 75 L25 60 M25 75 L40 75 M75 75 L75 60 M75 75 L60 75" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+		</svg>
+		<svg id="icon-exit-fullscreen" width="24" height="24" viewBox="0 0 100 100" style="display: none;">
+			<path d="M40 40 L40 25 M40 40 L25 40 M60 40 L60 25 M60 40 L75 40 M40 60 L40 75 M40 60 L25 60 M60 60 L60 75 M60 60 L75 60" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+		</svg>
+	</div>
 	<div id="player-controls">
 		<svg id="icon-pause" width="32" height="32" viewBox="0 0 100 100">
 			<path d="M30 20 L30 80 M70 20 L70 80" stroke="white" stroke-width="12" fill="none" stroke-linecap="round"/>
@@ -122,9 +157,26 @@
 	<div class="reveal">
 		<div class="slides">
 			<section data-background-video="KLKT_title.m4v" data-background-video-loop="true" data-autoplay></section>
-			<section data-background-video="KLKT_1.mp4" data-background-video-loop="true" data-autoplay></section>
-			<section data-background-video="KLKT_2.mp4" data-background-video-loop="true" data-autoplay></section>
-			<section data-background-video="KLKT_3.mp4" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_1.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_2.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_3.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_4.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_5.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_6.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_7.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_8.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_9.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_10.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_11.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_12.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_13.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_14.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_15.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_16.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_17.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_18.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_19.m4v" data-background-video-loop="true" data-autoplay></section>
+			<section data-background-video="KLKT_end.m4v" data-background-video-loop="true" data-autoplay></section>
 		</div>
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
@@ -134,6 +186,9 @@
 		const playerControls = document.getElementById('player-controls');
 		const iconPause = document.getElementById('icon-pause');
 		const iconPlay = document.getElementById('icon-play');
+		const fullscreenBtn = document.getElementById('fullscreen-btn');
+		const iconFullscreen = document.getElementById('icon-fullscreen');
+		const iconExitFullscreen = document.getElementById('icon-exit-fullscreen');
 
 		// Определяем мобильное устройство
 		function isMobile() {
@@ -144,6 +199,31 @@
 		if (isMobile()) {
 			document.body.classList.add('mobile-highlight');
 		}
+
+		// Функции для полноэкранного режима
+		function toggleFullscreen() {
+			if (!document.fullscreenElement) {
+				document.documentElement.requestFullscreen().catch(err => {
+					console.log('Fullscreen failed:', err);
+				});
+			} else {
+				document.exitFullscreen();
+			}
+		}
+
+		function updateFullscreenIcon() {
+			if (document.fullscreenElement) {
+				iconFullscreen.style.display = 'none';
+				iconExitFullscreen.style.display = 'block';
+			} else {
+				iconFullscreen.style.display = 'block';
+				iconExitFullscreen.style.display = 'none';
+			}
+		}
+
+		// Слушатели для полноэкранного режима
+		document.addEventListener('fullscreenchange', updateFullscreenIcon);
+		fullscreenBtn.addEventListener('click', toggleFullscreen);
 
 		function showPauseIcon() {
 			iconPause.style.display = 'block';
@@ -196,7 +276,8 @@
 			controls: true,
 			touch: true,
 			keyboard: {
-				32: togglePause
+				32: togglePause,
+				70: toggleFullscreen  // F для полноэкранного режима
 			}
 		});
 
