@@ -86,9 +86,16 @@
 			cursor: pointer;
 			opacity: 0.7;
 			display: none;
+			background: rgba(0, 0, 0, 0.5);
+			border-radius: 50%;
+			padding: 8px;
+			touch-action: manipulation;
 		}
 		#fullscreen-btn:hover {
 			opacity: 1;
+		}
+		#fullscreen-btn:active {
+			transform: scale(0.95);
 		}
 		#fullscreen-btn svg {
 			width: 24px;
@@ -202,17 +209,45 @@
 
 		// Функции для полноэкранного режима
 		function toggleFullscreen() {
-			if (!document.fullscreenElement) {
-				document.documentElement.requestFullscreen().catch(err => {
-					console.log('Fullscreen failed:', err);
-				});
+			const element = document.documentElement;
+			
+			if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+				// Пытаемся войти в полноэкранный режим с разными префиксами
+				if (element.requestFullscreen) {
+					element.requestFullscreen();
+				} else if (element.webkitRequestFullscreen) {
+					element.webkitRequestFullscreen();
+				} else if (element.webkitRequestFullScreen) {
+					element.webkitRequestFullScreen();
+				} else if (element.mozRequestFullScreen) {
+					element.mozRequestFullScreen();
+				} else if (element.msRequestFullscreen) {
+					element.msRequestFullscreen();
+				} else {
+					// Fallback для устройств, которые не поддерживают полноэкранный режим
+					console.log('Fullscreen not supported');
+					// Можно добавить альтернативное поведение
+				}
 			} else {
-				document.exitFullscreen();
+				// Выходим из полноэкранного режима
+				if (document.exitFullscreen) {
+					document.exitFullscreen();
+				} else if (document.webkitExitFullscreen) {
+					document.webkitExitFullscreen();
+				} else if (document.webkitCancelFullScreen) {
+					document.webkitCancelFullScreen();
+				} else if (document.mozCancelFullScreen) {
+					document.mozCancelFullScreen();
+				} else if (document.msExitFullscreen) {
+					document.msExitFullscreen();
+				}
 			}
 		}
 
 		function updateFullscreenIcon() {
-			if (document.fullscreenElement) {
+			const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+			
+			if (isFullscreen) {
 				iconFullscreen.style.display = 'none';
 				iconExitFullscreen.style.display = 'block';
 			} else {
@@ -221,9 +256,29 @@
 			}
 		}
 
-		// Слушатели для полноэкранного режима
+		// Слушатели для полноэкранного режима (все возможные префиксы)
 		document.addEventListener('fullscreenchange', updateFullscreenIcon);
-		fullscreenBtn.addEventListener('click', toggleFullscreen);
+		document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+		document.addEventListener('mozfullscreenchange', updateFullscreenIcon);
+		document.addEventListener('MSFullscreenChange', updateFullscreenIcon);
+		
+		fullscreenBtn.addEventListener('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			toggleFullscreen();
+		});
+		
+		// Добавляем тач-события для мобильных устройств
+		fullscreenBtn.addEventListener('touchstart', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+		});
+		
+		fullscreenBtn.addEventListener('touchend', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			toggleFullscreen();
+		});
 
 		function showPauseIcon() {
 			iconPause.style.display = 'block';
